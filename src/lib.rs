@@ -74,6 +74,15 @@ impl<'a> BetterChars<'a> {
     pub fn peek(&mut self) -> Option<char> {
         self.peeked
     }
+
+    /// Consume a character if it matches.
+    #[inline]
+    pub fn eat(&mut self, c: char) -> Option<char> {
+        if self.peek()? == c {
+            return self.next();
+        }
+        None
+    }
 }
 
 impl<'a> Iterator for BetterChars<'a> {
