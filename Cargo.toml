@@ -7,6 +7,7 @@ keywords = ["rust-patterns", "parsing", "no-std"]
 license = "MIT"
 
 description = "std::str::Chars, but improved"
+repository = "https://github.com/SamuelMcGowan/betterchars"
 readme = "README.md"
 
 [dependencies]
