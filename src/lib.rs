@@ -8,7 +8,7 @@ pub trait IntoBetterChars {
 
 impl<S: AsRef<str>> IntoBetterChars for S {
     /// Create new a `BetterChars` iterator.
-    /// 
+    ///
     /// See `BetterChars` for more information.
     #[inline]
     fn better_chars(&self) -> BetterChars {
@@ -83,6 +83,21 @@ impl<'a> BetterChars<'a> {
         }
         None
     }
+
+    /// Consume a string if it matches.
+    #[inline]
+    pub fn eat_str(&mut self, s: &str) -> Option<&str> {
+        if self.remainder().starts_with(s) {
+            let (prefix, remainder) = self.remainder().split_at(s.len());
+
+            self.chars = remainder.chars();
+            self.peeked = self.chars.next();
+
+            return Some(prefix);
+        }
+
+        None
+    }
 }
 
 impl<'a> Iterator for BetterChars<'a> {
@@ -93,5 +108,29 @@ impl<'a> Iterator for BetterChars<'a> {
         let res = self.peeked;
         self.peeked = self.chars.next();
         res
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn eat_str() {
+        let mut s = "foobar".better_chars();
+
+        let foo = s.eat_str("foo");
+
+        assert_eq!(foo, Some("foo"));
+        assert_eq!(s.remainder(), "bar");
+
+        assert_eq!(s.peek(), Some('b'));
+
+        let bar = s.eat_str("bar");
+
+        assert_eq!(bar, Some("bar"));
+        assert_eq!(s.remainder(), "");
+
+        assert_eq!(s.peek(), None);
     }
 }
