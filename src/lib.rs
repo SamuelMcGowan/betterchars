@@ -86,7 +86,7 @@ impl<'a> BetterChars<'a> {
 
     /// Consume a string if it matches.
     #[inline]
-    pub fn eat_str(&mut self, s: &str) -> Option<&str> {
+    pub fn eat_str(&mut self, s: &str) -> Option<&'a str> {
         if self.remainder().starts_with(s) {
             let (prefix, remainder) = self.remainder().split_at(s.len());
 
@@ -119,18 +119,21 @@ mod tests {
     fn eat_str() {
         let mut s = "foobar".better_chars();
 
-        let foo = s.eat_str("foo");
-
-        assert_eq!(foo, Some("foo"));
+        assert_eq!(s.eat_str("foo"), Some("foo"));
         assert_eq!(s.remainder(), "bar");
-
         assert_eq!(s.peek(), Some('b'));
 
-        let bar = s.eat_str("bar");
-
-        assert_eq!(bar, Some("bar"));
+        assert_eq!(s.eat_str("bar"), Some("bar"));
         assert_eq!(s.remainder(), "");
-
         assert_eq!(s.peek(), None);
+    }
+
+    #[test]
+    fn eat_nothing() {
+        let mut s = "hello".better_chars();
+
+        assert_eq!(s.eat_str("hi"), None);
+        assert_eq!(s.remainder(), "hello");
+        assert_eq!(s.peek(), Some('h'));
     }
 }
