@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 keywords = ["rust-patterns", "parsing", "no-std"]
+license = "MIT"
 
 description = "std::str::Chars, but improved"
 readme = "README.md"
