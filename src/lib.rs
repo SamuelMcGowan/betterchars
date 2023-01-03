@@ -31,29 +31,22 @@ impl<'a> From<&'a str> for BetterChars<'a> {
 pub struct BetterChars<'a> {
     s: &'a str,
     chars: Chars<'a>,
-    peeked: Option<char>,
 }
 
 impl<'a> BetterChars<'a> {
     /// Create a new `StringIter` from a string.
     #[inline]
     pub fn new(s: &'a str) -> Self {
-        let mut chars = s.chars();
         Self {
             s,
-            peeked: chars.next(),
-            chars,
+            chars: s.chars(),
         }
     }
 
     /// Get the current position in the string, in bytes.
     #[inline]
     pub fn pos(&self) -> usize {
-        let pos = self.s.len() - self.chars.as_str().len();
-        match self.peeked {
-            Some(_) => pos - 1,
-            None => pos,
-        }
+        self.s.len() - self.chars.as_str().len()
     }
 
     /// Get the whole underlying string.
@@ -65,14 +58,13 @@ impl<'a> BetterChars<'a> {
     /// Get the remaining part of the underlying string.
     #[inline]
     pub fn remainder(&self) -> &'a str {
-        // can't `use self.chars.as_str()` because of the peeked character.
-        &self.s[self.pos()..]
+        self.chars.as_str()
     }
 
     /// Peek at the next character without consuming it.
     #[inline]
     pub fn peek(&mut self) -> Option<char> {
-        self.peeked
+        self.chars.clone().next()
     }
 
     /// Consume a character if it matches.
@@ -89,10 +81,7 @@ impl<'a> BetterChars<'a> {
     pub fn eat_str(&mut self, s: &str) -> Option<&'a str> {
         if self.remainder().starts_with(s) {
             let (prefix, remainder) = self.remainder().split_at(s.len());
-
             self.chars = remainder.chars();
-            self.peeked = self.chars.next();
-
             return Some(prefix);
         }
 
@@ -105,9 +94,7 @@ impl<'a> Iterator for BetterChars<'a> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        let res = self.peeked;
-        self.peeked = self.chars.next();
-        res
+        self.chars.next()
     }
 }
 
@@ -121,11 +108,9 @@ mod tests {
 
         assert_eq!(s.eat_str("foo"), Some("foo"));
         assert_eq!(s.remainder(), "bar");
-        assert_eq!(s.peek(), Some('b'));
 
         assert_eq!(s.eat_str("bar"), Some("bar"));
         assert_eq!(s.remainder(), "");
-        assert_eq!(s.peek(), None);
     }
 
     #[test]
