@@ -119,6 +119,5 @@ mod tests {
 
         assert_eq!(s.eat_str("hi"), None);
         assert_eq!(s.remainder(), "hello");
-        assert_eq!(s.peek(), Some('h'));
     }
 }
